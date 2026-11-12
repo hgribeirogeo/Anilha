@@ -1,13 +1,13 @@
 {
-  "name": "Anilha",
-  "short_name": "Anilha",
+  "name": "Old School",
+  "short_name": "Old School",
   "description": "Acompanhamento diário dos programas de treino",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#1C1F24",
-  "theme_color": "#1C1F24",
+  "background_color": "#14211A",
+  "theme_color": "#14211A",
   "lang": "pt-BR",
   "icons": [
     {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},

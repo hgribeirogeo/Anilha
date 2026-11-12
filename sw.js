@@ -1,4 +1,4 @@
-const CACHE = 'anilha-v2';
+const CACHE = 'anilha-v3';
 const SHELL = ['./', './index.html', './qrcode.js', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
