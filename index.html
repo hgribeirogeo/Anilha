@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Anilha</title>
+<meta name="theme-color" content="#1C1F24">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Anilha">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#1C1F24; --surface:#262A31; --surface2:#30353D; --line:#3B414A;
+  --text:#EDEEE9; --muted:#9BA3AD; --blue:#2B63D9; --blue-ring:#1E4CB0;
+  --red:#D62B3E; --red-ring:#A81E2E; --yellow:#E8B10A; --green:#2E9E63; --hub:#C9CDD3;
+  --cond:"Barlow Condensed","Arial Narrow","Roboto Condensed",sans-serif;
+  --body:"Barlow","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color-scheme:dark;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#ECEDE8; --surface:#FFFFFF; --surface2:#E2E4DE; --line:#D0D3CB;
+    --text:#1D2126; --muted:#5C646E; --hub:#D9DCE0; color-scheme:light;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#ECEDE8; --surface:#FFFFFF; --surface2:#E2E4DE; --line:#D0D3CB;
+  --text:#1D2126; --muted:#5C646E; --hub:#D9DCE0; color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px}
+h1,h2,h3{font-family:var(--cond);margin:0;line-height:1.05}
+.muted{color:var(--muted)}
+.hidden{display:none!important}
+
+/* ---------- capa ---------- */
+.brand{display:flex;align-items:center;gap:12px;padding:28px 0 8px}
+.brand svg{width:46px;height:46px;flex:none}
+.brand h1{font-size:40px;font-weight:700;letter-spacing:.5px}
+.lede{margin:4px 0 22px;color:var(--muted)}
+.prog{display:block;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 18px 16px;margin-bottom:14px;position:relative;overflow:hidden}
+.prog::after{content:"";position:absolute;right:-46px;top:-46px;width:132px;height:132px;border-radius:50%;border:18px solid var(--surface2)}
+.prog h2{font-size:30px;font-weight:700;position:relative;z-index:1}
+.prog .autor{font-size:14px;color:var(--muted);position:relative;z-index:1}
+.prog .prox{margin-top:14px;font-family:var(--cond);font-size:21px;font-weight:600}
+.prog .prox small{display:block;font-family:var(--body);font-size:14px;font-weight:400;color:var(--muted)}
+.bar{height:8px;background:var(--surface2);border-radius:99px;overflow:hidden;margin-top:12px}
+.bar i{display:block;height:100%;background:var(--blue);border-radius:99px;transition:width .3s}
+.prog .meta{display:flex;justify-content:space-between;margin-top:8px;font-size:13px;color:var(--muted)}
+.linkbtn{background:none;border:0;color:var(--muted);text-decoration:underline;padding:10px 0;font-size:15px}
+.import{background:var(--surface);border:1px dashed var(--line);border-radius:18px;padding:22px}
+.import h2{font-size:26px;margin-bottom:6px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:14px;border:2px solid transparent;padding:13px 18px;font-weight:600;font-size:16px;min-height:50px}
+.btn-pri{background:var(--green);color:#fff}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-out{background:transparent;border-color:var(--line)}
+.btn-danger{background:transparent;border-color:var(--red);color:var(--red)}
+
+/* ---------- treino ---------- */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--bg);padding:10px 0 12px;border-bottom:1px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:11;background:var(--bg)}
+.toprow{display:flex;align-items:center;gap:8px}
+.iconbtn{background:var(--surface);border:1px solid var(--line);border-radius:12px;min-width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;padding:0 12px;font-size:15px}
+.toprow .pname{flex:1;font-size:15px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sess{margin-top:10px}
+.sess h1{font-size:34px;font-weight:700}
+.sess .count{font-size:15px;color:var(--muted)}
+.lista{padding:14px 0 190px}
+.grupo{border-left:4px solid var(--yellow);padding-left:10px;margin-bottom:14px}
+.grupo>.gtit{font-size:14px;color:var(--yellow);font-weight:600;margin:0 0 8px 2px}
+.ex{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 14px 12px;margin-bottom:12px}
+.grupo .ex{margin-bottom:10px}
+.ex.ok{border-color:var(--green)}
+.exhead{display:flex;gap:10px;align-items:flex-start}
+.exhead h3{flex:1;font-size:23px;font-weight:600}
+.exhead .ver{flex:none;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--surface2);padding:0 10px;font-size:14px}
+.exmeta{color:var(--muted);font-size:14.5px;margin-top:4px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{border:1px solid var(--line);background:var(--surface2);border-radius:99px;padding:4px 11px;font-size:13.5px;line-height:1.3;text-align:left}
+.plates{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.plate{--c:var(--blue);--r:var(--blue-ring);width:60px;height:60px;border-radius:50%;border:0;padding:0;position:relative;
+  background:radial-gradient(circle at 50% 50%,var(--bg) 0 4px,var(--hub) 4.5px 9px,var(--c) 9.5px 100%);
+  box-shadow:inset 0 0 0 5px var(--r);transition:transform .12s}
+.plate:active{transform:scale(.94)}
+.plate span{position:absolute;inset:auto 0 7px;font-family:var(--cond);font-weight:700;font-size:14px;color:#fff;line-height:1}
+.plate b{position:absolute;inset:7px 0 auto;font-family:var(--cond);font-weight:600;font-size:11px;color:#fff;opacity:.85;line-height:1}
+.plate.on{--c:var(--red);--r:var(--red-ring)}
+.plate.extra{box-shadow:inset 0 0 0 5px var(--r),0 0 0 3px var(--yellow)}
+.carga{display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+.carga label{font-size:14px;color:var(--muted)}
+.carga input{width:92px;height:44px;border-radius:10px;border:1px solid var(--line);background:var(--surface2);color:var(--text);font:600 18px var(--body);padding:0 10px;text-align:center}
+.carga .ult{font-size:13.5px;color:var(--muted)}
+.prog-sess{height:6px;margin-top:10px}
+
+/* rodapé + cronômetro */
+.foot{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--bg);border-top:1px solid var(--line);padding:10px 0 calc(10px + env(safe-area-inset-bottom,0px))}
+.foot .wrap{display:flex;gap:10px}
+.foot .btn{flex:1}
+.timer{display:flex;align-items:center;gap:12px;margin-bottom:10px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:8px 10px 8px 14px}
+.timer .t{font-family:var(--cond);font-size:34px;font-weight:700;min-width:84px;font-variant-numeric:tabular-nums}
+.timer .lbl{flex:1;font-size:14px;color:var(--muted);line-height:1.25}
+.timer .tb{height:40px;border-radius:10px;border:1px solid var(--line);background:var(--surface2);padding:0 12px;font-size:14px}
+.timer.fim{border-color:var(--green)}
+.timer.fim .t{color:var(--green)}
+
+/* folhas (sheets) */
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:40;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--surface);width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:22px 22px 0 0;padding:18px 18px calc(22px + env(safe-area-inset-bottom,0px))}
+.sheet h2{font-size:26px;margin-bottom:6px;padding-right:48px}
+.sheet .close{position:sticky;top:0;float:right;margin:-4px -4px 0 0}
+.sheet p{margin:8px 0}
+.anim{position:relative;width:100%;aspect-ratio:4/3;background:#fff;border-radius:14px;overflow:hidden;margin:12px 0 8px}
+.anim img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transition:opacity .35s}
+.anim .alt{animation:troca 1.6s steps(1,end) infinite}
+@keyframes troca{0%{opacity:0}50%{opacity:1}}
+.anim .err{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#5C646E;padding:20px;text-align:center}
+.cap{font-size:13px;color:var(--muted)}
+.gl dt{font-weight:600;margin-top:12px}
+.gl dd{margin:2px 0 0;color:var(--muted)}
+.mapa{display:grid;gap:6px;margin-top:12px}
+.mrow{display:grid;grid-template-columns:44px repeat(5,1fr);gap:6px;align-items:center}
+.mrow .wk{font-family:var(--cond);font-weight:600;color:var(--muted);font-size:15px}
+.cell{height:40px;border-radius:9px;border:1px solid var(--line);background:var(--surface2);font-size:12.5px;padding:0}
+.cell.feito{background:var(--green);border-color:var(--green);color:#fff}
+.cell.rep{border:2px solid var(--yellow)}
+.cell.atual{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600}
+.leg{display:flex;flex-wrap:wrap;gap:12px;font-size:13px;color:var(--muted);margin-top:12px}
+.leg i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.hist{list-style:none;padding:0;margin:8px 0 0}
+.hist li{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14.5px}
+.stack{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.toast{position:fixed;left:50%;bottom:calc(150px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:12px;z-index:60;font-size:15px;max-width:90vw}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation-duration:0s!important}.anim .alt{animation:troca 1.6s steps(1,end) infinite!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<input type="file" id="fileProg" accept=".json,application/json" class="hidden">
+<input type="file" id="fileBackup" accept=".json,application/json" class="hidden">
+
+<script>
+"use strict";
+/* ============ armazenamento ============ */
+const K_PROG='anilha.programas', K_EST='anilha.estado';
+const ls={
+  get(k){try{const v=localStorage.getItem(k);return v?JSON.parse(v):null}catch(e){return null}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){toast('Não foi possível salvar no aparelho.');return false}}
+};
+let DATA=ls.get(K_PROG);
+let EST=ls.get(K_EST)||{v:1,progs:{},cargas:{}};
+function salvar(){ls.set(K_EST,EST)}
+function pst(id){if(!EST.progs[id])EST.progs[id]={ptr:0,marcas:{},hist:[]};return EST.progs[id]}
+
+/* ============ utilidades ============ */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const hoje=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const fdata=s=>{const [y,m,d]=s.split('-');return d+'/'+m};
+const fdataLonga=s=>{const [y,m,d]=s.split('-');return d+'/'+m+'/'+y};
+const DIA_CURTO={'Segunda-feira':'Seg','Terça-feira':'Ter','Quarta-feira':'Qua','Quinta-feira':'Qui','Sexta-feira':'Sex'};
+let toastT;
+function toast(msg){let t=$('.toast');if(!t){t=document.createElement('div');t.className='toast';t.setAttribute('role','status');document.body.appendChild(t)}
+  t.textContent=msg;clearTimeout(toastT);toastT=setTimeout(()=>t.remove(),2600)}
+const LOGO=`<svg viewBox="0 0 512 512" aria-hidden="true"><circle cx="256" cy="256" r="200" fill="#2B63D9"/><circle cx="256" cy="256" r="200" fill="none" stroke="#1E4CB0" stroke-width="22"/><circle cx="256" cy="256" r="150" fill="none" stroke="#5A88E6" stroke-width="6" opacity=".55"/><circle cx="256" cy="256" r="74" fill="#C9CDD3"/><circle cx="256" cy="256" r="34" fill="var(--bg)"/><path d="M256 70 a186 186 0 0 1 186 186" fill="none" stroke="#D62B3E" stroke-width="22" stroke-linecap="round"/></svg>`;
+
+/* ============ navegação ============ */
+let tela='capa', progAtual=null;
+function ir(t,id){if(t!=='treino'||(id&&id!==progAtual))pararTimer();tela=t;if(id)progAtual=id;render();window.scrollTo(0,0);wake(t==='treino')}
+function render(){
+  pararTimerVisual();
+  if(!DATA||!DATA.programas){renderImport();return}
+  if(tela==='treino'&&progAtual)renderTreino();else renderCapa();
+}
+
+/* ============ capa ============ */
+function renderImport(){
+  $('#app').innerHTML=`<div class="wrap">
+  <div class="brand">${LOGO}<h1>Anilha</h1></div>
+  <p class="lede">Seu treino do dia, série por série.</p>
+  <div class="import">
+    <h2>Carregue seus programas</h2>
+    <p class="muted">Selecione o arquivo <b>programas.json</b>. Ele fica salvo só neste aparelho; não é preciso importar de novo.</p>
+    <button class="btn btn-blue" onclick="$('#fileProg').click()">Selecionar programas.json</button>
+  </div></div>`;
+}
+function renderCapa(){
+  const cards=DATA.programas.map(p=>{
+    const s=pst(p.id), n=p.sessoes.length, i=Math.min(s.ptr,n), feitos=s.hist.filter(h=>h.st==='feito').length;
+    const fim=i>=n, ses=p.sessoes[Math.min(i,n-1)];
+    const ult=s.hist.length?s.hist[s.hist.length-1]:null;
+    return `<button class="prog" onclick="ir('treino','${p.id}')">
+      <h2>${esc(p.nome)}</h2><div class="autor">${esc(p.autor)}</div>
+      <div class="prox">${fim?'Programa concluído':'Semana '+ses.semana+' · '+esc(ses.dia)}
+        <small>${fim?'Toque para revisar ou recomeçar':'Próximo treino · sessão '+(i+1)+' de '+n}</small></div>
+      <div class="bar"><i style="width:${(i/n*100).toFixed(1)}%"></i></div>
+      <div class="meta"><span>${feitos} ${feitos===1?'treino feito':'treinos feitos'}</span><span>${ult?'Último: '+fdata(ult.d):'Ainda não iniciado'}</span></div>
+    </button>`}).join('');
+  $('#app').innerHTML=`<div class="wrap">
+    <div class="brand">${LOGO}<h1>Anilha</h1></div>
+    <p class="lede">Escolha o programa para ver o treino de hoje.</p>
+    ${cards}
+    <button class="linkbtn" onclick="abrirDados()">Backup e dados</button>
+  </div>`;
+}
+
+/* ============ treino ============ */
+function sessAtual(){const p=DATA.programas.find(x=>x.id===progAtual);const s=pst(p.id);return {p,s,i:Math.min(s.ptr,p.sessoes.length-1),fim:s.ptr>=p.sessoes.length}}
+function marcas(s,i,ex){const k=String(i);if(s.marcaSess!==s.ptr){s.marcas={};s.marcaSess=s.ptr}
+  if(!s.marcas[k]||s.marcas[k].length!==ex.series)s.marcas[k]=Array(ex.series).fill(false);return s.marcas[k]}
+function blocos(exs){const out=[];exs.forEach((e,i)=>{const g=e.grupo;const last=out[out.length-1];
+  if(g&&last&&last.g===g)last.itens.push(i);else out.push({g,itens:[i]})});return out}
+function ultimaCarga(nome){const arr=(EST.cargas[nome]||[]).filter(c=>c.d!==hoje());return arr.length?arr[arr.length-1]:null}
+function cargaHoje(nome){const c=(EST.cargas[nome]||[]).find(c=>c.d===hoje());return c?c.kg:''}
+
+function renderTreino(){
+  const {p,s,i,fim}=sessAtual();
+  if(fim){$('#app').innerHTML=`<div class="wrap"><div class="top"><div class="toprow"><button class="iconbtn" onclick="ir('capa')" aria-label="Voltar">‹ Voltar</button><span class="pname">${esc(p.nome)}</span></div></div>
+    <div class="sess" style="padding:24px 0"><h1>Programa concluído</h1><p class="muted">Você completou as ${p.sessoes.length} sessões. Pode revisar pelo mapa ou recomeçar do início; o histórico e as cargas são mantidos.</p>
+    <div class="stack"><button class="btn btn-blue" onclick="abrirMapa()">Abrir mapa do programa</button><button class="btn btn-out" onclick="recomecar()">Recomeçar da sessão 1</button></div></div></div>`;return}
+  const ses=p.sessoes[i];
+  const bl=blocos(ses.exercicios).map(b=>{
+    const cards=b.itens.map(k=>cardEx(s,i,ses.exercicios[k],k)).join('');
+    if(!b.g)return cards;
+    const tri=b.g.startsWith('T');
+    return `<div class="grupo"><p class="gtit">${tri?'Tri-set':'Bi-set'}: alterne os exercícios, descanse ao fim do ${tri?'trio':'par'} <button class="chip" style="margin-left:4px;padding:0 8px;font-size:12px" aria-label="O que é" onclick="glossario('${tri?'Tri-set':'Bi-set'}')">?</button></p>${cards}</div>`}).join('');
+  $('#app').innerHTML=`
+  <div class="top"><div class="wrap">
+    <div class="toprow"><button class="iconbtn" onclick="ir('capa')" aria-label="Voltar para a capa">‹</button>
+      <span class="pname">${esc(p.nome)}</span>
+      <button class="iconbtn" onclick="abrirMapa()">Mapa</button></div>
+    <div class="sess"><h1>Semana ${ses.semana} · ${esc(ses.dia.replace('-','\u2011'))}</h1>
+      <div class="count">Treino de hoje · sessão ${i+1} de ${p.sessoes.length}</div>
+      <div class="bar prog-sess"><i id="pbar"></i></div></div>
+  </div></div>
+  <div class="wrap lista">${bl}</div>
+  <div class="foot"><div class="wrap" style="flex-direction:column;gap:0">
+    <div id="timer" class="timer hidden"></div>
+    <div style="display:flex;gap:10px"><button class="btn btn-out" onclick="naoFeito()">Não concluí</button>
+    <button class="btn btn-pri" onclick="concluir()">Treino concluído</button></div>
+  </div></div>`;
+  atualizarBarra();
+}
+function cardEx(s,i,ex,k){
+  const m=marcas(s,i,ex);
+  const plates=ex.alvos.map((a,j)=>{const isExtra=ex.extra&&j>=ex.series-ex.extra;
+    return `<button class="plate${m[j]?' on':''}${isExtra?' extra':''}" onclick="marcar(${k},${j},this)" aria-pressed="${m[j]}" aria-label="Série ${j+1}, ${esc(a)} repetições">
+    <b>${j+1}ª</b><span${a.length>7?' style="font-size:10.5px"':''}>${esc(a.replace(' a ','–').replace(/(\d)-(\d)/g,'$1–$2'))}</span></button>`}).join('');
+  const chips=ex.tecnicas.map(t=>`<button class="chip" onclick="glossario(${esc(JSON.stringify(t))})">${esc(t)}</button>`).join('');
+  const ult=ultimaCarga(ex.nome);
+  const temImg=DATA.imagens&&DATA.imagens[ex.nome];
+  const ok=m.every(Boolean);
+  const reps=ex.alvos&&ex.reps.includes('/')?ex.reps.replace(/\s/g,''):ex.reps;
+  return `<article class="ex${ok?' ok':''}" id="ex${k}">
+    <div class="exhead"><h3>${esc(ex.nome)}</h3>${temImg?`<button class="ver" onclick="verImg(${k})">Ver movimento</button>`:''}</div>
+    <div class="exmeta">${esc(ex.seriesTxt)} ${ex.series===1?'série':'séries'} · ${esc(reps)} reps · descanso ${esc(ex.descanso.txt)}</div>
+    ${chips?`<div class="chips">${chips}</div>`:''}
+    <div class="plates">${plates}</div>
+    <div class="carga"><label for="kg${k}">Carga (kg)</label>
+      <input id="kg${k}" type="number" inputmode="decimal" min="0" step="0.5" value="${esc(cargaHoje(ex.nome))}" onchange="salvarCarga(${k},this.value)">
+      <span class="ult">${ult?'Última: '+esc(ult.kg)+' kg em '+fdata(ult.d):'Sem registro anterior'}</span></div>
+  </article>`;
+}
+function atualizarBarra(){const {p,s,i}=sessAtual();const exs=p.sessoes[i].exercicios;let tot=0,ok=0;
+  exs.forEach((e,k)=>{const m=marcas(s,i,e);tot+=m.length;ok+=m.filter(Boolean).length});
+  const b=$('#pbar');if(b)b.style.width=(tot?ok/tot*100:0)+'%';return {tot,ok}}
+function marcar(k,j,el){
+  const {p,s,i}=sessAtual();const ex=p.sessoes[i].exercicios[k];const m=marcas(s,i,ex);
+  m[j]=!m[j];salvar();
+  el.classList.toggle('on',m[j]);el.setAttribute('aria-pressed',m[j]);
+  $('#ex'+k).classList.toggle('ok',m.every(Boolean));
+  atualizarBarra();
+  if(!m[j])return;
+  if(navigator.vibrate)navigator.vibrate(30);
+  // bi/tri-set: o descanso só começa ao fim do último exercício do bloco
+  const exs=p.sessoes[i].exercicios;
+  if(ex.grupo&&exs[k+1]&&exs[k+1].grupo===ex.grupo){toast('Siga para '+exs[k+1].nome);return}
+  if(ex.descanso.seg>0)iniciarTimer(ex.descanso.seg,ex.descanso.txt);
+}
+function salvarCarga(k,v){const {p,i}=sessAtual();const nome=p.sessoes[i].exercicios[k].nome;
+  const arr=EST.cargas[nome]=(EST.cargas[nome]||[]).filter(c=>c.d!==hoje());
+  const kg=parseFloat(String(v).replace(',','.'));if(!isNaN(kg)&&kg>=0)arr.push({d:hoje(),kg});salvar()}
+function registrar(st){const {p,s,i}=sessAtual();s.hist.push({d:hoje(),s:i,st});s.marcas={};s.marcaSess=null}
+function concluir(){
+  const {ok,tot}=atualizarBarra();
+  if(ok<tot&&!confirm(`Faltam ${tot-ok} de ${tot} séries marcadas. Registrar o treino como concluído mesmo assim?`))return;
+  const {p,s}=sessAtual();registrar('feito');s.ptr++;salvar();pararTimer();
+  toast(s.ptr>=p.sessoes.length?'Programa concluído.':'Treino registrado. Próximo: sessão '+(s.ptr+1)+'.');ir('capa');
+}
+function naoFeito(){
+  if(!confirm('Registrar como não concluído? Este mesmo treino aparece de novo na próxima vez, com as séries zeradas.'))return;
+  registrar('repetir');salvar();pararTimer();toast('Este treino se repete na próxima vez.');ir('capa');
+}
+function recomecar(){if(!confirm('Voltar para a sessão 1? Histórico e cargas são mantidos.'))return;const {s}=sessAtual();s.ptr=0;s.marcas={};salvar();render()}
+
+/* ============ cronômetro de descanso ============ */
+let tm={fim:0,int:null,total:0,txt:''};
+function iniciarTimer(seg,txt){tm.total=seg;tm.txt=txt;tm.fim=Date.now()+seg*1000;clearInterval(tm.int);tm.int=setInterval(tick,250);tick()}
+function addTimer(s){tm.fim+=s*1000;tm.total+=s;tick()}
+function pararTimer(){clearInterval(tm.int);tm.int=null;const el=$('#timer');if(el)el.classList.add('hidden')}
+function pararTimerVisual(){/* mantém o timer rodando entre renderizações */}
+function tick(){const el=$('#timer');if(!el)return;const r=Math.max(0,Math.ceil((tm.fim-Date.now())/1000));
+  const mm=Math.floor(r/60),ss=String(r%60).padStart(2,'0');el.classList.remove('hidden');
+  if(r===0){clearInterval(tm.int);tm.int=null;el.classList.add('fim');
+    el.innerHTML=`<div class="t">0:00</div><div class="lbl">Descanso encerrado. Próxima série.</div><button class="tb" onclick="pararTimer()">Fechar</button>`;alarme();return}
+  el.classList.remove('fim');
+  el.innerHTML=`<div class="t">${mm}:${ss}</div><div class="lbl">Descanso<br>${esc(tm.txt)}</div><button class="tb" onclick="addTimer(15)">+15 s</button><button class="tb" onclick="pararTimer()">Pular</button>`}
+let actx;
+function alarme(){if(navigator.vibrate)navigator.vibrate([250,120,250]);
+  try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();[0,.25].forEach(t=>{const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=880;g.gain.value=.15;o.connect(g);g.connect(actx.destination);o.start(actx.currentTime+t);o.stop(actx.currentTime+t+.15)})}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&tm.int)tick()});
+
+/* ============ tela ligada ============ */
+let wl=null;
+async function wake(on){try{if(on&&'wakeLock' in navigator){wl=await navigator.wakeLock.request('screen')}else if(wl){await wl.release();wl=null}}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&tela==='treino')wake(true)});
+
+/* ============ folhas ============ */
+function folha(html){fecharFolha();const bg=document.createElement('div');bg.className='sheet-bg';bg.onclick=e=>{if(e.target===bg)fecharFolha()};
+  bg.innerHTML=`<div class="sheet" role="dialog" aria-modal="true"><button class="iconbtn close" onclick="fecharFolha()" aria-label="Fechar">✕</button>${html}</div>`;document.body.appendChild(bg)}
+function fecharFolha(){document.querySelectorAll('.sheet-bg').forEach(e=>e.remove())}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')fecharFolha()});
+
+function verImg(k){const {p,i}=sessAtual();const ex=p.sessoes[i].exercicios[k];const im=DATA.imagens[ex.nome];
+  folha(`<h2>${esc(ex.nome)}</h2>
+    <div class="anim"><img src="${esc(im.urls[0])}" alt="Posição inicial" onerror="this.parentNode.innerHTML='<div class=err>Imagem indisponível. Verifique a conexão.</div>'">
+    ${im.urls[1]?`<img class="alt" src="${esc(im.urls[1])}" alt="Posição final">`:''}</div>
+    <p class="cap">Referência ilustrativa: ${esc(im.ref)}. Pode diferir na variação exata (pegada, equipamento). Fonte: ${esc(DATA.fonteImagens||'Free Exercise DB')}.</p>`)}
+function glossario(t){const G=DATA.glossario||{};let d=G[t];
+  if(!d){const base=Object.keys(G).sort((a,b)=>b.length-a.length).find(k=>t.toLowerCase().startsWith(k.toLowerCase()));if(base)d=G[base]+' Aqui: '+t.toLowerCase()+'.'}
+  folha(`<h2>${esc(t)}</h2><p>${esc(d||'Indicação de carga e execução definida pela planilha para esta série.')}</p>
+    <details style="margin-top:14px"><summary class="muted">Todas as técnicas</summary><dl class="gl">${Object.entries(G).map(([a,b])=>`<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('')}</dl></details>`)}
+
+function abrirMapa(){const p=DATA.programas.find(x=>x.id===progAtual);const s=pst(p.id);
+  const feito=new Set(s.hist.filter(h=>h.st==='feito').map(h=>h.s)), rep=new Set(s.hist.filter(h=>h.st==='repetir').map(h=>h.s));
+  const sem={};p.sessoes.forEach((x,i)=>{(sem[x.semana]=sem[x.semana]||[]).push(i)});
+  const ordem=['Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira'];
+  const rows=Object.entries(sem).map(([w,ids])=>`<div class="mrow"><span class="wk">S${w}</span>${ordem.map(d=>{const i=ids.find(j=>p.sessoes[j].dia===d);
+    if(i===undefined)return '<span></span>';const c=i===s.ptr?'atual':feito.has(i)?'feito':rep.has(i)?'rep':'';
+    return `<button class="cell ${c}" onclick="irPara(${i})" aria-label="Semana ${w}, ${d}">${DIA_CURTO[d]}</button>`}).join('')}</div>`).join('');
+  const hist=s.hist.slice(-15).reverse().map(h=>{const x=p.sessoes[h.s];return `<li><span>${fdataLonga(h.d)} · S${x.semana} ${DIA_CURTO[x.dia]}</span><span class="muted">${h.st==='feito'?'Concluído':'Não concluído'}</span></li>`}).join('');
+  folha(`<h2>${esc(p.nome)}</h2><p class="muted">Toque numa sessão para torná-la o treino de hoje.</p>
+    <div class="mapa">${rows}</div>
+    <div class="leg"><span><i style="background:var(--blue)"></i>Atual</span><span><i style="background:var(--green)"></i>Concluído</span><span><i style="border:2px solid var(--yellow)"></i>Ficou para repetir</span></div>
+    <h2 style="font-size:22px;margin-top:20px">Histórico recente</h2>${hist?`<ul class="hist">${hist}</ul>`:'<p class="muted">Nenhum treino registrado ainda.</p>'}`)}
+function irPara(i){const p=DATA.programas.find(x=>x.id===progAtual);const x=p.sessoes[i];
+  if(!confirm(`Tornar "Semana ${x.semana} · ${x.dia}" o treino de hoje? As séries marcadas na sessão atual serão zeradas.`))return;
+  const s=pst(p.id);s.ptr=i;s.marcas={};s.marcaSess=null;salvar();fecharFolha();ir('treino',p.id)}
+
+/* ============ dados e backup ============ */
+function abrirDados(){
+  folha(`<h2>Backup e dados</h2><p class="muted">Progresso, histórico e cargas ficam salvos só neste aparelho. Exporte um backup de vez em quando e, para trocar de aparelho, importe-o no novo.</p>
+  <div class="stack">
+    <button class="btn btn-blue" onclick="exportar()">Exportar backup</button>
+    <button class="btn btn-out" onclick="$('#fileBackup').click()">Importar backup</button>
+    <button class="btn btn-out" onclick="$('#fileProg').click()">Recarregar programas.json</button>
+    <button class="btn btn-danger" onclick="zerar()">Apagar progresso e cargas</button>
+  </div>
+  <p class="cap" style="margin-top:16px">Imagens dos exercícios: ${esc(DATA.fonteImagens||'')}.</p>`)}
+function baixar(nome,obj){const b=new Blob([JSON.stringify(obj,null,1)],{type:'application/json'});const a=document.createElement('a');
+  a.href=URL.createObjectURL(b);a.download=nome;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+function exportar(){baixar('anilha-backup-'+hoje()+'.json',{tipo:'anilha-backup',...EST});toast('Backup exportado.')}
+function zerar(){if(!confirm('Apagar todo o progresso, histórico e cargas deste aparelho? Os programas continuam carregados.'))return;
+  EST={v:1,progs:{},cargas:{}};salvar();fecharFolha();ir('capa');toast('Progresso apagado.')}
+function lerArquivo(inp,cb){const f=inp.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{cb(JSON.parse(r.result))}catch(e){toast('Arquivo inválido: não é um JSON legível.')}inp.value=''};r.readAsText(f)}
+$('#fileProg').addEventListener('change',e=>lerArquivo(e.target,j=>{
+  if(!j.programas||!Array.isArray(j.programas)||!j.programas.every(p=>p.id&&p.sessoes)){toast('Esse arquivo não contém programas no formato esperado.');return}
+  DATA=j;if(ls.set(K_PROG,j)){fecharFolha();ir('capa');toast(j.programas.length+' programas carregados.')}}));
+$('#fileBackup').addEventListener('change',e=>lerArquivo(e.target,j=>{
+  if(j.tipo!=='anilha-backup'||!j.progs){toast('Esse arquivo não é um backup do Anilha.');return}
+  if(!confirm('Substituir o progresso atual por este backup?'))return;
+  delete j.tipo;EST=j;EST.cargas=EST.cargas||{};salvar();fecharFolha();ir('capa');toast('Backup importado.')}));
+
+/* ============ início ============ */
+render();
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
