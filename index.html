@@ -142,12 +142,23 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .hist{list-style:none;padding:0;margin:8px 0 0}
 .hist li{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14.5px}
 .stack{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.qrbox{background:#fff;border-radius:16px;padding:14px;display:flex;justify-content:center;margin:12px 0}
+.qrbox svg{width:min(78vw,300px);height:auto;display:block;shape-rendering:crispEdges}
+.ativar{display:flex;gap:8px;margin-top:10px}
+.ativar input{flex:1;min-width:0;height:50px;border-radius:12px;border:1px solid var(--line);background:var(--surface2);color:var(--text);padding:0 12px;font:15px var(--body)}
+.passos{padding-left:20px;margin:10px 0}
+.passos li{margin:6px 0}
+.aviso{border-left:4px solid var(--yellow);padding:8px 12px;background:var(--surface2);border-radius:0 10px 10px 0;font-size:14px;margin-top:12px}
+.instalar{background:var(--surface);border:1px solid var(--blue);border-radius:16px;padding:14px 16px;margin-bottom:14px}
+.instalar h3{font-size:22px;margin-bottom:4px}
+.instalar p{margin:4px 0 10px;font-size:14.5px;color:var(--muted)}
 .toast{position:fixed;left:50%;bottom:calc(150px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:12px;z-index:60;font-size:15px;max-width:90vw}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation-duration:0s!important}.anim .alt{animation:troca 1.6s steps(1,end) infinite!important}}
 </style>
 </head>
 <body>
 <div id="app"></div>
+<script src="qrcode.js"></script>
 <input type="file" id="fileProg" accept=".json,application/json" class="hidden">
 <input type="file" id="fileBackup" accept=".json,application/json" class="hidden">
 
@@ -194,7 +205,9 @@ function renderImport(){
     <h2>Carregue seus programas</h2>
     <p class="muted">Selecione o arquivo <b>programas.json</b>. Ele fica salvo só neste aparelho; não é preciso importar de novo.</p>
     <button class="btn btn-blue" onclick="$('#fileProg').click()">Selecionar programas.json</button>
-  </div></div>`;
+    <p class="muted" style="font-size:14px;margin-top:14px">No celular, escaneie o QR gerado no computador (Configuração → Instalar no celular). Se o app já está instalado e abriu vazio, cole aqui o link de ativação:</p>
+    <div class="ativar"><input id="linkAtiv" placeholder="Colar link de ativação" autocomplete="off" aria-label="Link de ativação"><button class="btn btn-blue" onclick="receberDoQR($('#linkAtiv').value)">Ativar</button></div>
+  </div>${cartaoInstalar()}</div>`;
 }
 function renderCapa(){
   const cards=DATA.programas.map(p=>{
@@ -211,8 +224,9 @@ function renderCapa(){
   $('#app').innerHTML=`<div class="wrap">
     <div class="brand">${LOGO}<h1>Anilha</h1></div>
     <p class="lede">Escolha o programa para ver o treino de hoje.</p>
+    ${cartaoInstalar()}
     ${cards}
-    <button class="linkbtn" onclick="abrirDados()">Backup e dados</button>
+    <button class="linkbtn" onclick="abrirDados()">Configuração, celular e backup</button>
   </div>`;
 }
 
@@ -361,8 +375,9 @@ function irPara(i){const p=DATA.programas.find(x=>x.id===progAtual);const x=p.se
 
 /* ============ dados e backup ============ */
 function abrirDados(){
-  folha(`<h2>Backup e dados</h2><p class="muted">Progresso, histórico e cargas ficam salvos só neste aparelho. Exporte um backup de vez em quando e, para trocar de aparelho, importe-o no novo.</p>
+  folha(`<h2>Configuração, celular e backup</h2><p class="muted">Progresso, histórico e cargas ficam salvos só neste aparelho. Exporte um backup de vez em quando e, para trocar de aparelho, importe-o no novo.</p>
   <div class="stack">
+    <button class="btn btn-pri" onclick="prepararCelular()">Instalar no celular (QR)</button>
     <button class="btn btn-blue" onclick="exportar()">Exportar backup</button>
     <button class="btn btn-out" onclick="$('#fileBackup').click()">Importar backup</button>
     <button class="btn btn-out" onclick="$('#fileProg').click()">Recarregar programas.json</button>
@@ -384,8 +399,98 @@ $('#fileBackup').addEventListener('change',e=>lerArquivo(e.target,j=>{
   if(!confirm('Substituir o progresso atual por este backup?'))return;
   delete j.tipo;EST=j;EST.cargas=EST.cargas||{};salvar();fecharFolha();ir('capa');toast('Backup importado.')}));
 
+/* ============ celular: QR + programas cifrados ============ */
+// A chave vai só no fragmento (#chave=...) do QR, que o navegador não envia ao servidor.
+// No repositório público fica apenas programas.enc, cifrado com AES-GCM 256.
+const K_CHAVE='anilha.chave';
+const b64u={
+  de:s=>{s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return Uint8Array.from(atob(s),c=>c.charCodeAt(0))},
+  para:b=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')
+};
+function b64(buf){let s='';const u=new Uint8Array(buf);for(let i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(s)}
+const deB64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function transformar(bytes,Stream){const st=new Blob([bytes]).stream().pipeThrough(new Stream('gzip'));return new Uint8Array(await new Response(st).arrayBuffer())}
+async function chaveCrypto(k){return crypto.subtle.importKey('raw',b64u.de(k),'AES-GCM',false,['encrypt','decrypt'])}
+async function cifrar(obj,k){
+  let bytes=new TextEncoder().encode(JSON.stringify(obj));const gz='CompressionStream' in window;
+  if(gz)bytes=await transformar(bytes,CompressionStream);
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},await chaveCrypto(k),bytes);
+  return {tipo:'anilha-enc',v:1,gz,iv:b64(iv),ct:b64(ct)};
+}
+async function decifrar(env,k){
+  let bytes=new Uint8Array(await crypto.subtle.decrypt({name:'AES-GCM',iv:deB64(env.iv)},await chaveCrypto(k),deB64(env.ct)));
+  if(env.gz)bytes=await transformar(bytes,DecompressionStream);
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+function baseURL(){return location.origin+location.pathname.replace(/index\.html$/,'')}
+function qrSVG(texto){const q=qrcode(0,'M');q.addData(texto);q.make();return q.createSvgTag({cellSize:4,margin:2,scalable:true})}
+async function prepararCelular(novaChave){
+  if(!window.isSecureContext||!crypto.subtle){toast('Abra o app pelo endereço https do GitHub Pages para gerar o QR.');return}
+  if(!/^https?:/.test(location.protocol)){toast('Abra o app pelo GitHub Pages, não como arquivo local.');return}
+  let k=ls.get(K_CHAVE);
+  if(!k||novaChave){k=b64u.para(crypto.getRandomValues(new Uint8Array(32)));ls.set(K_CHAVE,k)}
+  const env=await cifrar(DATA,k);
+  const url=baseURL()+'#chave='+k;
+  folha(`<h2>Instalar no celular</h2>
+    <ol class="passos">
+      <li>Baixe <b>programas.enc</b> e envie para o repositório, na mesma pasta do index.html. Só é preciso repetir se você recarregar os programas ou gerar nova chave.</li>
+      <li>Espere o GitHub Pages atualizar (1 a 2 minutos) e toque em <b>Verificar publicação</b>.</li>
+      <li>Aponte a câmera do celular para o QR. O app abre já com os programas e mostra como instalar.</li>
+    </ol>
+    <div class="stack" style="margin-top:6px">
+      <button class="btn btn-blue" id="btnEnc">Baixar programas.enc</button>
+      <button class="btn btn-out" onclick="verificarPublicacao()">Verificar publicação</button>
+      <button class="btn btn-out" onclick="copiarLink()">Copiar link de ativação</button>
+    </div>
+    <div class="qrbox" aria-label="QR code com o endereço do app e a chave">${qrSVG(url)}</div>
+    <p class="aviso">O QR contém a chave que abre seus programas. Não o compartilhe nem guarde print dele. O arquivo publicado é ilegível sem ela.</p>
+    <button class="linkbtn" onclick="if(confirm('Gerar nova chave? O QR e o programas.enc antigos deixam de funcionar; será preciso enviar o novo arquivo.'))prepararCelular(true)">Gerar nova chave</button>`);
+  $('#btnEnc').onclick=()=>{baixar('programas.enc',env);toast('programas.enc baixado. Envie para o repositório.')};
+}
+async function verificarPublicacao(){
+  try{const r=await fetch('programas.enc?t='+Date.now(),{cache:'no-store'});
+    if(!r.ok){toast('programas.enc ainda não está publicado (erro '+r.status+').');return}
+    await decifrar(await r.json(),ls.get(K_CHAVE));toast('Publicado e compatível com o QR. Pode escanear.')}
+  catch(e){toast('O arquivo publicado não abre com esta chave. Envie o programas.enc mais recente.')}
+}
+async function receberDoQR(texto){
+  const m=(texto??location.hash).match(/chave=([A-Za-z0-9_-]{43})/);
+  if(!m){if(texto!==undefined)toast('Link inválido: cole o link de ativação completo.');return false}
+  if(texto===undefined)history.replaceState(null,'',location.pathname+location.search); // tira a chave da barra de endereço
+  try{
+    const r=await fetch('programas.enc?t='+Date.now(),{cache:'no-store'});
+    if(!r.ok)throw new Error('http');
+    const j=await decifrar(await r.json(),m[1]);
+    if(!j.programas)throw new Error('formato');
+    DATA=j;ls.set(K_PROG,j);ls.set(K_CHAVE,m[1]);
+    tela='capa';render();toast('Programas recebidos: '+j.programas.length+'.');
+  }catch(e){toast(e.message==='http'?'programas.enc não encontrado no site. Publique o arquivo e escaneie de novo.':'Não foi possível abrir os programas com este QR. Gere um QR novo no computador.')}
+  return true;
+}
+
+/* ============ instalação (tela inicial) ============ */
+let promptInstalar=null;
+const instalado=()=>window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+const ehIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const ehCelular=()=>ehIOS()||/android/i.test(navigator.userAgent);
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();promptInstalar=e;if(tela==='capa')render()});
+window.addEventListener('appinstalled',()=>{promptInstalar=null;toast('App instalado.');render()});
+function cartaoInstalar(){
+  if(instalado()||!ehCelular())return '';
+  if(promptInstalar)return `<div class="instalar"><h3>Instale o Anilha</h3><p>Abre em tela cheia, direto da tela inicial, e funciona offline.</p><button class="btn btn-blue" onclick="instalarAgora()">Instalar app</button></div>`;
+  if(ehIOS())return `<div class="instalar"><h3>Instale o Anilha</h3><p>No iPhone, o app da tela inicial não enxerga os dados do Safari. Por isso: 1) toque em <b>Copiar link de ativação</b>; 2) no Safari, <b>Compartilhar → Adicionar à Tela de Início</b>; 3) abra o app instalado e cole o link.</p>${ls.get(K_CHAVE)?'<button class="btn btn-blue" onclick="copiarLink()">Copiar link de ativação</button>':''}</div>`;
+  return `<div class="instalar"><h3>Instale o Anilha</h3><p>No Chrome, abra o menu ⋮ e toque em <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>.</p></div>`;
+}
+async function copiarLink(){const k=ls.get(K_CHAVE);if(!k){toast('Nenhuma chave neste aparelho.');return}
+  const url=baseURL()+'#chave='+k;
+  try{await navigator.clipboard.writeText(url);toast('Link copiado. Não compartilhe com outras pessoas.')}
+  catch(e){prompt('Copie o link de ativação:',url)}}
+async function instalarAgora(){if(!promptInstalar)return;promptInstalar.prompt();await promptInstalar.userChoice;promptInstalar=null;render()}
+
 /* ============ início ============ */
 render();
+receberDoQR();
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
